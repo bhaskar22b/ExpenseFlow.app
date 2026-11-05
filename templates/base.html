@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}ExpenseFlow{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: "#D45060",
+                            light: "#E77A85",
+                            dark: "#B83248"
+                        },
+                        burgundy: "#800020",
+                        cream: "#F3E6D5",
+                        ivory: "#FFF9F2",
+                        coral: "#D45060"
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block head_extra %}{% endblock %}
+</head>
+
+<body class="min-h-screen bg-[#FFF9F2] text-[#3B1820]">
+
+    <div class="min-h-screen flex flex-col md:flex-row">
+
+        <!-- Mobile Menu Overlay -->
+        <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/50 z-40 md:hidden">
+        </div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72
+                      -translate-x-full transition-transform duration-300
+                      ease-in-out overflow-y-auto
+                      bg-[#800020] text-white p-5
+                      md:relative md:translate-x-0 md:w-64
+                      md:shrink-0 md:min-h-screen">
+
+            <!-- Logo and Mobile Close Button -->
+            <div class="flex items-center justify-between mb-8">
+
+                <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3">
+
+                    <div class="w-10 h-10 rounded-xl bg-[#D45060]
+                                flex items-center justify-center text-xl
+                                font-bold shadow-lg shadow-black/20">
+                        E
+                    </div>
+
+                    <div>
+                        <h1 class="font-bold text-lg tracking-wide">
+                            Expense<span class="text-[#F3E6D5]">Flow</span>
+                        </h1>
+
+                        <p class="text-xs text-[#F3E6D5]/70">
+                            Personal Finance
+                        </p>
+                    </div>
+
+                </a>
+
+                <!-- Mobile Close Button -->
+                <button id="close-sidebar" type="button" aria-label="Close navigation menu" class="md:hidden w-9 h-9 rounded-lg
+                               bg-white/10 hover:bg-white/20
+                               text-white text-2xl">
+                    &times;
+                </button>
+
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-2">
+
+                <p class="text-xs uppercase tracking-widest
+                          text-[#F3E6D5]/60 font-semibold mb-3">
+                    Main Menu
+                </p>
+
+                <!-- Dashboard -->
+                <a href="{{ url_for('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl
+                          bg-[#D45060] text-white border border-[#E77A85]
+                          shadow-lg shadow-black/10">
+
+                    <span>▦</span>
+                    <span class="font-medium">Dashboard</span>
+
+                </a>
+
+                <!-- Transactions -->
+                <a href="{{ url_for('transactions') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl
+          text-[#F3E6D5] hover:bg-white/10 transition">
+
+                    <span>↔</span>
+                    <span>Transactions</span>
+
+                </a>
+
+                <!-- Add Expense -->
+                <a href="{{ url_for('dashboard') }}#add-expense" class="flex items-center gap-3 px-4 py-3 rounded-xl
+          text-[#F3E6D5] hover:bg-white/10 transition">
+
+                    <span>＋</span>
+                    <span>Add Expense</span>
+
+                </a>
+
+                <!-- Analytics -->
+                <a href="{{ url_for('analytics') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl
+          text-[#F3E6D5] hover:bg-white/10 transition">
+
+                    <span>◷</span>
+                    <span>Analytics</span>
+
+                </a>
+
+                <!-- Preferences -->
+                <div class="pt-6">
+
+                    <p class="text-xs uppercase tracking-widest
+                              text-[#F3E6D5]/60 font-semibold mb-3">
+                        Preferences
+                    </p>
+
+                    <a href="#" title="Coming soon" class="flex items-center gap-3 px-4 py-3 rounded-xl
+                              text-[#F3E6D5] hover:bg-white/10 transition">
+
+                        <span>⚙</span>
+                        <span>Settings</span>
+
+                        <span class="ml-auto text-[10px] text-[#F3E6D5]/50">
+                            SOON
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="mt-10 p-4 rounded-xl bg-[#D45060]/20
+                        border border-[#F3E6D5]/10">
+
+                <p class="text-sm font-semibold text-[#F3E6D5]">
+                    Smart Money Habits
+                </p>
+
+                <p class="text-xs text-[#F3E6D5]/70 mt-2 leading-relaxed">
+                    Track your spending, understand your habits and take
+                    control of your financial goals.
+                </p>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Area -->
+        <div class="flex-1 min-w-0">
+
+            <!-- Top Header -->
+            <header class="min-h-16 border-b border-[#E8D8C5]
+                           bg-[#F3E6D5] flex items-center
+                           justify-between px-5 md:px-8 py-3">
+
+                <div class="flex items-center gap-3">
+
+                    <!-- Mobile Hamburger Button -->
+                    <button id="open-sidebar" type="button" aria-label="Open navigation menu" aria-expanded="false"
+                        class="md:hidden w-10 h-10 rounded-xl
+                                   bg-[#800020] text-white
+                                   flex items-center justify-center
+                                   text-xl hover:bg-[#B83248]">
+                        ☰
+                    </button>
+
+                    <div>
+                        <p class="text-sm font-semibold text-[#800020]">
+                            Personal Finance
+                        </p>
+
+                        <p class="text-xs text-[#800020]/60">
+                            Your money, organised in one place
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="flex items-center gap-3">
+
+                    <div class="text-right hidden sm:block">
+
+                        <p class="text-sm font-semibold text-[#800020]">
+                            My Account
+                        </p>
+
+                        <p class="text-xs text-[#800020]/60">
+                            Personal Workspace
+                        </p>
+
+                    </div>
+
+                    <div class="w-10 h-10 rounded-full bg-[#D45060]
+                                text-white flex items-center justify-center
+                                font-bold shadow-md">
+                        U
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- Page Content -->
+            <main class="p-5 md:p-8 bg-[#FFF9F2]
+                         min-h-[calc(100vh-160px)]">
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                <div class="space-y-3 mb-6">
+
+                    {% for category, message in messages %}
+
+                    <div class="rounded-xl px-4 py-3 text-sm
+                                    {% if category == 'success' %}
+                                        bg-emerald-50 text-emerald-800 border border-emerald-200
+                                    {% elif category == 'error' %}
+                                        bg-rose-50 text-rose-800 border border-rose-200
+                                    {% else %}
+                                        bg-[#F3E6D5] text-[#800020] border border-[#E8D8C5]
+                                    {% endif %}">
+
+                        {{ message }}
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                {% endif %}
+
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+
+            </main>
+
+
+            <!-- Footer -->
+            <footer class="px-5 md:px-8 py-5 border-t
+                           border-[#F3E6D5] bg-[#FFF9F2]
+                           text-xs text-[#800020]/60">
+
+                <div class="flex flex-col sm:flex-row
+                            justify-between gap-2">
+
+                    <p>
+                        © 2026 ExpenseFlow. All rights reserved.
+                    </p>
+
+                    <p>
+                        Take control of your spending, one transaction at a time.
+                    </p>
+
+                </div>
+
+            </footer>
+
+        </div>
+
+    </div>
+
+
+    <!-- Mobile Sidebar JavaScript -->
+    <script>
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebar-overlay");
+        const openButton = document.getElementById("open-sidebar");
+        const closeButton = document.getElementById("close-sidebar");
+
+        function openSidebar() {
+            sidebar.classList.remove("-translate-x-full");
+            overlay.classList.remove("hidden");
+            openButton.setAttribute("aria-expanded", "true");
+            document.body.classList.add("overflow-hidden");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add("-translate-x-full");
+            overlay.classList.add("hidden");
+            openButton.setAttribute("aria-expanded", "false");
+            document.body.classList.remove("overflow-hidden");
+        }
+
+        openButton.addEventListener("click", openSidebar);
+        closeButton.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeSidebar();
+            }
+        });
+    </script>
+
+    {% block body_end %}{% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,217 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Transaction · ExpenseFlow{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<div class="max-w-3xl mx-auto mt-4 mb-7">
+
+    <p class="text-sm font-semibold uppercase tracking-widest text-[#D45060] mb-2">
+        Transaction Management
+    </p>
+
+    <h1 class="text-3xl font-bold text-[#800020]">
+        Edit Transaction
+    </h1>
+
+    <p class="text-[#800020]/65 mt-2">
+        Update your transaction details to keep your financial
+        records accurate and organised.
+    </p>
+
+</div>
+
+
+<!-- Edit Expense Card -->
+<div class="max-w-3xl mx-auto rounded-2xl border border-[#F0E2D5] bg-white shadow-sm overflow-hidden">
+
+    <!-- Card Header -->
+    <div class="p-6 md:p-8 bg-[#F3E6D5] border-b border-[#E8D8C5]">
+
+        <div class="flex items-center gap-4">
+
+            <div class="w-12 h-12 rounded-xl bg-[#D45060] text-white flex items-center justify-center text-2xl font-bold">
+                ✎
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-[#800020]">
+                    Transaction Details
+                </h2>
+
+                <p class="text-sm text-[#800020]/65 mt-1">
+                    Make changes to the selected expense below.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Form -->
+    <div class="p-6 md:p-8">
+
+        <form method="POST"
+              action="{{ url_for('edit', expense_id=expense['id']) }}"
+              class="space-y-6">
+
+
+            <!-- Description -->
+            <div>
+
+                <label class="block text-sm font-semibold text-[#800020] mb-2">
+                    Expense Description
+                </label>
+
+                <p class="text-xs text-[#800020]/55 mb-2">
+                    Enter a short description of what you spent money on.
+                </p>
+
+                <input
+                    type="text"
+                    name="description"
+                    value="{{ expense['description'] }}"
+                    placeholder="e.g. Grocery shopping"
+                    required
+                    class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] placeholder-[#800020]/35 outline-none transition focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10"
+                >
+
+            </div>
+
+
+            <!-- Amount -->
+            <div>
+
+                <label class="block text-sm font-semibold text-[#800020] mb-2">
+                    Transaction Amount (₹)
+                </label>
+
+                <p class="text-xs text-[#800020]/55 mb-2">
+                    Enter the updated amount of this transaction.
+                </p>
+
+                <input
+                    type="number"
+                    name="amount"
+                    step="0.01"
+                    min="0.01"
+                    value="{{ expense['amount'] }}"
+                    placeholder="e.g. 500.00"
+                    required
+                    class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] placeholder-[#800020]/35 outline-none transition focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10"
+                >
+
+            </div>
+
+
+            <!-- Category -->
+            <div>
+
+                <label class="block text-sm font-semibold text-[#800020] mb-2">
+                    Expense Category
+                </label>
+
+                <p class="text-xs text-[#800020]/55 mb-2">
+                    Choose the category that best describes this expense.
+                </p>
+
+                <select
+                    name="category"
+                    required
+                    class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none transition focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10"
+                >
+
+                    {% for category in categories %}
+
+                    <option value="{{ category }}"
+                        {% if expense['category'] == category %}selected{% endif %}>
+
+                        {{ category }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- Date -->
+            <div>
+
+                <label class="block text-sm font-semibold text-[#800020] mb-2">
+                    Transaction Date
+                </label>
+
+                <p class="text-xs text-[#800020]/55 mb-2">
+                    Select the date on which this expense occurred.
+                </p>
+
+                <input
+                    type="date"
+                    name="date"
+                    value="{{ expense['date'] }}"
+                    required
+                    class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none transition focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10"
+                >
+
+            </div>
+
+
+            <!-- Information Note -->
+            <div class="rounded-xl bg-[#F3E6D5]/70 border border-[#E8D8C5] p-4">
+
+                <p class="text-sm font-semibold text-[#800020]">
+                    Important Information
+                </p>
+
+                <p class="text-xs text-[#800020]/70 mt-1 leading-relaxed">
+                    Updating this transaction will replace its existing
+                    details. Your changes will be saved to your expense
+                    records once you confirm the update.
+                </p>
+
+            </div>
+
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+
+                <button
+                    type="submit"
+                    class="flex-1 rounded-xl bg-[#D45060] hover:bg-[#B83248] text-white font-semibold px-6 py-3 shadow-sm transition duration-200"
+                >
+                    Save Changes
+                </button>
+
+
+                <a
+                    href="{{ url_for('dashboard') }}"
+                    class="flex-1 text-center rounded-xl bg-[#F3E6D5] hover:bg-[#E8D8C5] text-[#800020] font-semibold px-6 py-3 transition duration-200"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- Bottom Information -->
+<div class="max-w-3xl mx-auto mt-5 text-center">
+
+    <p class="text-xs text-[#800020]/50">
+        ExpenseFlow · Keep your finances organised and up to date.
+    </p>
+
+</div>
+
+{% endblock %}

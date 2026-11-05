@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · ExpenseFlow{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- Dashboard Welcome -->
+<div class="mb-8">
+    <p class="text-sm font-semibold text-[#D45060] uppercase tracking-widest mb-2">
+        Financial Overview
+    </p>
+
+    <h1 class="text-3xl md:text-4xl font-bold text-[#800020]">
+        Welcome to ExpenseFlow
+    </h1>
+
+    <p class="text-[#800020]/65 mt-2">
+        Your financial overview, all in one place. Track your spending,
+        manage transactions and make smarter financial decisions.
+    </p>
+</div>
+
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+
+    <!-- Total Spending -->
+    <div class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-[#800020]/60 font-medium">
+                    Total Spending
+                </p>
+
+                <h2 class="text-3xl font-bold text-[#800020] mt-3">
+                    ₹{{ "%.2f"|format(total) }}
+                </h2>
+            </div>
+
+            <div class="w-12 h-12 rounded-xl bg-[#F3E6D5] flex items-center justify-center text-2xl">
+                ₹
+            </div>
+        </div>
+
+        <p class="text-xs text-[#800020]/50 mt-4">
+            Total expenses for the selected filters
+        </p>
+    </div>
+
+
+    <!-- Transactions -->
+    <div class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-[#800020]/60 font-medium">
+                    Transactions
+                </p>
+
+                <h2 class="text-3xl font-bold text-[#800020] mt-3">
+                    {{ expenses|length }}
+                </h2>
+            </div>
+
+            <div class="w-12 h-12 rounded-xl bg-[#FCE9EB] flex items-center justify-center text-2xl">
+                ↔
+            </div>
+        </div>
+
+        <p class="text-xs text-[#800020]/50 mt-4">
+            Number of transactions currently displayed
+        </p>
+    </div>
+
+
+    <!-- Categories -->
+    <div class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm text-[#800020]/60 font-medium">
+                    Available Categories
+                </p>
+
+                <h2 class="text-3xl font-bold text-[#800020] mt-3">
+                    {{ categories|length }}
+                </h2>
+            </div>
+
+            <div class="w-12 h-12 rounded-xl bg-[#F3E6D5] flex items-center justify-center text-2xl">
+                ◷
+            </div>
+        </div>
+
+        <p class="text-xs text-[#800020]/50 mt-4">
+            Categories used to organise your spending
+        </p>
+    </div>
+
+</div>
+
+
+<!-- Add Expense Section -->
+<section class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm mb-8">
+
+    <div id="add-expense" class="bg-white border border-[#E8D8C5] rounded-2xl p-6">
+        <p class="text-xs font-semibold uppercase tracking-widest text-[#D45060] mb-2">
+            Quick Entry
+        </p>
+
+        <h2 class="text-xl font-bold text-[#800020]">
+            Add a New Expense
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1">
+            Record a transaction to keep your financial records accurate
+            and up to date.
+        </p>
+    </div>
+
+
+    <form method="POST" action="{{ url_for('dashboard') }}"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Description -->
+        <div>
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                Description
+            </label>
+
+            <input type="text" name="description" required placeholder="e.g. Grocery shopping"
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] placeholder-[#800020]/35 outline-none focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10">
+        </div>
+
+
+        <!-- Amount -->
+        <div>
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                Amount (₹)
+            </label>
+
+            <input type="number" name="amount" step="0.01" min="0.01" required placeholder="e.g. 500"
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] placeholder-[#800020]/35 outline-none focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10">
+        </div>
+
+
+        <!-- Date -->
+        <div>
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                Expense Date
+            </label>
+
+            <input type="date" name="date" value="{{ today }}" required
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10">
+        </div>
+
+
+        <!-- Category -->
+        <div>
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                Category
+            </label>
+
+            <select name="category" required
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none focus:border-[#D45060] focus:ring-2 focus:ring-[#D45060]/10">
+                <option value="">Select category</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Rent">Rent</option>
+                <option value="Utilities">Utilities</option>
+            </select>
+        </div>
+
+
+        <!-- Submit -->
+        <div class="md:col-span-2 lg:col-span-4 flex justify-end">
+
+            <button type="submit"
+                class="rounded-xl bg-[#D45060] hover:bg-[#B83248] text-white font-semibold px-7 py-3 shadow-sm transition duration-200">
+                + Add Expense
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+
+<!-- Transaction Filters -->
+<section class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm mb-8">
+
+    <div class="mb-5">
+        <h2 class="text-xl font-bold text-[#800020]">
+            Find Your Transactions
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1">
+            Narrow down your records by date range or spending category.
+        </p>
+    </div>
+
+
+    <form method="GET" action="{{ url_for('dashboard') }}" class="flex flex-col sm:flex-row flex-wrap gap-4 items-end">
+
+        <!-- Start Date -->
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                Start Date
+            </label>
+
+            <input type="date" name="start" value="{{ start or '' }}"
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none focus:border-[#D45060]">
+        </div>
+
+
+        <!-- End Date -->
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                End Date
+            </label>
+
+            <input type="date" name="end" value="{{ end or '' }}"
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none focus:border-[#D45060]">
+        </div>
+
+
+        <!-- Category -->
+        <div class="flex-1 min-w-[150px]">
+            <label class="block text-sm font-medium text-[#800020] mb-2">
+                Category
+            </label>
+
+            <select name="category"
+                class="w-full rounded-xl border border-[#E8D8C5] bg-[#FFF9F2] px-4 py-3 text-[#3B1820] outline-none focus:border-[#D45060]">
+
+                <option value="">All Categories</option>
+
+                {% for item in categories %}
+
+                <option value="{{ item }}" {% if selected_category==item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+        </div>
+
+
+        <!-- Buttons -->
+        <div class="flex gap-2">
+
+            <button type="submit"
+                class="rounded-xl bg-[#800020] hover:bg-[#650019] text-white font-medium px-6 py-3 transition">
+                Apply
+            </button>
+
+            <a href="{{ url_for('dashboard') }}"
+                class="rounded-xl bg-[#F3E6D5] hover:bg-[#E8D8C5] text-[#800020] font-medium px-6 py-3 transition">
+                Reset
+            </a>
+
+        </div>
+
+    </form>
+
+</section>
+
+
+<!-- Transactions Table -->
+<section class="rounded-2xl bg-white border border-[#F0E2D5] shadow-sm overflow-hidden mb-8">
+
+    <div class="p-6 border-b border-[#F0E2D5]">
+
+        <p class="text-xs uppercase tracking-widest font-semibold text-[#D45060] mb-2">
+            Financial Activity
+        </p>
+
+        <h2 class="text-xl font-bold text-[#800020]">
+            Recent Transactions
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1">
+            Review, edit and manage your recorded expenses.
+        </p>
+
+    </div>
+
+
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full text-sm">
+
+            <thead class="bg-[#F3E6D5] text-[#800020]">
+
+                <tr>
+                    <th class="text-left px-5 py-4 font-semibold">Date</th>
+                    <th class="text-left px-5 py-4 font-semibold">Description</th>
+                    <th class="text-left px-5 py-4 font-semibold">Category</th>
+                    <th class="text-right px-5 py-4 font-semibold">Amount</th>
+                    <th class="text-right px-5 py-4 font-semibold">Actions</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for expense in expenses %}
+
+                <tr class="border-t border-[#F0E2D5] hover:bg-[#FFF9F2] transition">
+
+                    <td class="px-5 py-4 text-[#800020]/70 whitespace-nowrap">
+                        {{ expense["date"] }}
+                    </td>
+
+                    <td class="px-5 py-4 font-medium text-[#3B1820]">
+                        {{ expense["description"] }}
+                    </td>
+
+                    <td class="px-5 py-4">
+
+                        <span
+                            class="inline-block rounded-full bg-[#F3E6D5] text-[#800020] px-3 py-1 text-xs font-medium">
+                            {{ expense["category"] }}
+                        </span>
+
+                    </td>
+
+                    <td class="px-5 py-4 text-right font-semibold text-[#800020] whitespace-nowrap">
+                        ₹{{ "%.2f"|format(expense["amount"]) }}
+                    </td>
+
+                    <td class="px-5 py-4">
+
+                        <div class="flex justify-end gap-2">
+
+                            <!-- Edit -->
+                            <a href="{{ url_for('edit', expense_id=expense['id']) }}"
+                                class="rounded-lg bg-[#F3E6D5] hover:bg-[#E8D8C5] text-[#800020] px-3 py-2 font-medium transition">
+                                Edit
+                            </a>
+
+
+                            <!-- Delete -->
+                            <form method="POST" action="{{ url_for('delete', expense_id=expense['id']) }}"
+                                onsubmit="return confirm('Are you sure you want to delete this expense?');">
+
+                                <button type="submit"
+                                    class="rounded-lg bg-[#FCE9EB] hover:bg-[#F7D2D7] text-[#B83248] px-3 py-2 font-medium transition">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5" class="px-5 py-12 text-center">
+
+                        <div class="text-4xl mb-3">📊</div>
+
+                        <h3 class="text-lg font-semibold text-[#800020]">
+                            No transactions found
+                        </h3>
+
+                        <p class="text-sm text-[#800020]/60 mt-2">
+                            Your expense records will appear here once you
+                            add a transaction or adjust your filters.
+                        </p>
+
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- Analytics Section -->
+<section class="mb-6">
+
+    <div class="mb-5">
+        <p class="text-xs uppercase tracking-widest font-semibold text-[#D45060] mb-2">
+            Spending Insights
+        </p>
+
+        <h2 class="text-2xl font-bold text-[#800020]">
+            Understand Your Spending
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1">
+            Explore how your money is distributed across categories
+            and how your expenses change over time.
+        </p>
+    </div>
+
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <!-- Category Chart -->
+        <div class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm">
+
+            <h3 class="text-lg font-bold text-[#800020]">
+                Spending by Category
+            </h3>
+
+            <p class="text-sm text-[#800020]/55 mt-1 mb-5">
+                See which categories account for your expenses.
+            </p>
+
+            <div class="relative h-64">
+                <canvas id="catChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- Daily Chart -->
+        <div class="rounded-2xl bg-white border border-[#F0E2D5] p-6 shadow-sm">
+
+            <h3 class="text-lg font-bold text-[#800020]">
+                Daily Spending Trends
+            </h3>
+
+            <p class="text-sm text-[#800020]/55 mt-1 mb-5">
+                Track your daily expenses and identify spending patterns.
+            </p>
+
+            <div class="relative h-64">
+                <canvas id="dayChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock %}
+
+
+{% block body_end %}
+
+<script>
+
+    // Category chart data from Flask
+    const catLabels = {{ catlabels | tojson }};
+    const catValues = {{ catvalues | tojson }};
+
+    const catCanvas = document.getElementById("catChart");
+
+    if (catCanvas) {
+
+        new Chart(catCanvas, {
+
+            type: "doughnut",
+
+            data: {
+                labels: catLabels,
+
+                datasets: [{
+                    label: "Expenses by Category",
+                    data: catValues,
+
+                    backgroundColor: [
+                        "#800020",
+                        "#D45060",
+                        "#E8A0A8",
+                        "#C58B72",
+                        "#F3E6D5",
+                        "#A83E53"
+                    ],
+
+                    borderColor: "#FFFFFF",
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "62%",
+
+                plugins: {
+                    legend: {
+                        position: "bottom",
+
+                        labels: {
+                            color: "#800020",
+                            padding: 18,
+                            usePointStyle: true
+                        }
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.label + ": ₹" +
+                                    Number(context.parsed).toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+
+        });
+
+    }
+
+
+    // Daily chart data from Flask
+    const dayLabels = {{ daylabels | tojson }};
+    const dayValues = {{ dayvalues | tojson }};
+
+    const dayCanvas = document.getElementById("dayChart");
+
+    if (dayCanvas) {
+
+        new Chart(dayCanvas, {
+
+            type: "bar",
+
+            data: {
+                labels: dayLabels,
+
+                datasets: [{
+                    label: "Daily Expenses (₹)",
+                    data: dayValues,
+
+                    backgroundColor: "#D45060",
+                    hoverBackgroundColor: "#800020",
+
+                    borderRadius: 7,
+                    maxBarThickness: 45
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return "₹" +
+                                    Number(context.parsed.y).toFixed(2);
+                            }
+                        }
+                    }
+                },
+
+                scales: {
+
+                    x: {
+                        ticks: {
+                            color: "#800020"
+                        },
+
+                        grid: {
+                            display: false
+                        }
+                    },
+
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+                            color: "#800020",
+
+                            callback: function (value) {
+                                return "₹" + value;
+                            }
+                        },
+
+                        grid: {
+                            color: "#F0E2D5"
+                        }
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+</script>
+
+{% endblock %}

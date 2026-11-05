@@ -1,0 +1,432 @@
+
+{% extends "base.html" %}
+
+{% block title %}Transactions | ExpenseFlow{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+
+    <div>
+        <p class="text-sm font-semibold text-[#D45060] mb-2">
+            FINANCIAL MANAGEMENT
+        </p>
+
+        <h1 class="text-2xl md:text-3xl font-bold text-[#800020]">
+            Transactions
+        </h1>
+
+        <p class="text-sm text-[#800020]/60 mt-2">
+            View, search and manage all your expense records in one place.
+        </p>
+    </div>
+
+    <a href="{{ url_for('dashboard') }}"
+       class="inline-flex items-center justify-center gap-2 px-5 py-3
+              rounded-xl bg-[#800020] text-white text-sm font-semibold
+              hover:bg-[#B83248] transition">
+
+        <span>＋</span>
+        Add Expense
+
+    </a>
+
+</div>
+
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+
+    <!-- Total Spending -->
+    <div class="bg-white border border-[#E8D8C5] rounded-2xl p-6 shadow-sm">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+                <p class="text-sm text-[#800020]/60 font-medium">
+                    Total Spending
+                </p>
+
+                <h2 class="text-2xl font-bold text-[#800020] mt-3">
+                    ₹{{ "%.2f"|format(total) }}
+                </h2>
+
+                <p class="text-xs text-[#800020]/50 mt-2">
+                    Based on current filters
+                </p>
+            </div>
+
+            <div class="w-12 h-12 rounded-xl bg-[#F3E6D5]
+                        flex items-center justify-center text-2xl">
+                ₹
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Transaction Count -->
+    <div class="bg-white border border-[#E8D8C5] rounded-2xl p-6 shadow-sm">
+
+        <div class="flex items-center justify-between">
+
+            <div>
+                <p class="text-sm text-[#800020]/60 font-medium">
+                    Total Transactions
+                </p>
+
+                <h2 class="text-2xl font-bold text-[#800020] mt-3">
+                    {{ expenses|length }}
+                </h2>
+
+                <p class="text-xs text-[#800020]/50 mt-2">
+                    Matching records
+                </p>
+            </div>
+
+            <div class="w-12 h-12 rounded-xl bg-[#FCE8E8]
+                        flex items-center justify-center text-2xl">
+                ↔
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Search and Filters -->
+<div class="bg-white border border-[#E8D8C5]
+            rounded-2xl p-5 md:p-6 shadow-sm mb-8">
+
+    <div class="mb-5">
+        <h2 class="text-lg font-bold text-[#800020]">
+            Find Transactions
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1">
+            Search by description or narrow your results using filters.
+        </p>
+    </div>
+
+
+    <form method="GET" action="{{ url_for('transactions') }}">
+
+        <!-- Search -->
+        <div class="mb-5">
+
+            <label for="search"
+                   class="block text-sm font-semibold text-[#800020] mb-2">
+                Search Description
+            </label>
+
+            <input
+                type="text"
+                id="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search expenses, e.g. lunch, shopping..."
+                class="w-full border border-[#E8D8C5] rounded-xl px-4 py-3
+                       text-sm text-[#3B1820] bg-[#FFF9F2]
+                       focus:border-[#D45060] focus:ring-2
+                       focus:ring-[#D45060]/10"
+            >
+
+        </div>
+
+
+        <!-- Filters -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <!-- Start Date -->
+            <div>
+
+                <label for="start"
+                       class="block text-sm font-semibold text-[#800020] mb-2">
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    id="start"
+                    name="start"
+                    value="{{ start }}"
+                    class="w-full border border-[#E8D8C5] rounded-xl
+                           px-4 py-3 text-sm bg-[#FFF9F2]"
+                >
+
+            </div>
+
+
+            <!-- End Date -->
+            <div>
+
+                <label for="end"
+                       class="block text-sm font-semibold text-[#800020] mb-2">
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    id="end"
+                    name="end"
+                    value="{{ end }}"
+                    class="w-full border border-[#E8D8C5] rounded-xl
+                           px-4 py-3 text-sm bg-[#FFF9F2]"
+                >
+
+            </div>
+
+
+            <!-- Category -->
+            <div>
+
+                <label for="category"
+                       class="block text-sm font-semibold text-[#800020] mb-2">
+                    Category
+                </label>
+
+                <select
+                    id="category"
+                    name="category"
+                    class="w-full border border-[#E8D8C5] rounded-xl
+                           px-4 py-3 text-sm bg-[#FFF9F2]">
+
+                    <option value="">All Categories</option>
+
+                    {% for category in categories %}
+
+                        <option value="{{ category }}"
+                            {% if selected_category == category %}selected{% endif %}>
+                            {{ category }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- Buttons -->
+        <div class="flex flex-wrap items-center gap-3 mt-6">
+
+            <button
+                type="submit"
+                class="px-6 py-3 rounded-xl bg-[#800020] text-white
+                       text-sm font-semibold hover:bg-[#B83248] transition">
+
+                Search Transactions
+
+            </button>
+
+            <a href="{{ url_for('transactions') }}"
+               class="px-6 py-3 rounded-xl bg-[#F3E6D5]
+                      text-[#800020] text-sm font-semibold
+                      hover:bg-[#E8D8C5] transition">
+
+                Clear Filters
+
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- Transactions Table -->
+<div class="bg-white border border-[#E8D8C5]
+            rounded-2xl shadow-sm overflow-hidden">
+
+    <!-- Table Header -->
+    <div class="p-5 md:p-6 border-b border-[#F0E2D5]
+                flex flex-col sm:flex-row sm:items-center
+                sm:justify-between gap-2">
+
+        <div>
+            <h2 class="text-lg font-bold text-[#800020]">
+                All Transactions
+            </h2>
+
+            <p class="text-sm text-[#800020]/60 mt-1">
+                Your recorded income and expense activity.
+            </p>
+        </div>
+
+        <span class="text-xs font-semibold text-[#800020]
+                     bg-[#F3E6D5] px-3 py-2 rounded-lg">
+            {{ expenses|length }} Records
+        </span>
+
+    </div>
+
+
+    {% if expenses %}
+
+        <!-- Responsive Table -->
+        <div class="overflow-x-auto">
+
+            <table class="w-full text-left whitespace-nowrap">
+
+                <thead class="bg-[#FFF9F2]">
+
+                    <tr class="text-xs uppercase tracking-wide
+                               text-[#800020]/60">
+
+                        <th class="px-5 py-4 font-semibold">Date</th>
+
+                        <th class="px-5 py-4 font-semibold">Description</th>
+
+                        <th class="px-5 py-4 font-semibold">Category</th>
+
+                        <th class="px-5 py-4 font-semibold">Amount</th>
+
+                        <th class="px-5 py-4 font-semibold text-center">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody class="divide-y divide-[#F0E2D5]">
+
+                    {% for expense in expenses %}
+
+                        <tr class="hover:bg-[#FFF9F2] transition">
+
+                            <!-- Date -->
+                            <td class="px-5 py-4 text-sm text-[#800020]/70">
+                                {{ expense["date"] }}
+                            </td>
+
+
+                            <!-- Description -->
+                            <td class="px-5 py-4">
+
+                                <p class="text-sm font-semibold text-[#3B1820]">
+                                    {{ expense["description"] }}
+                                </p>
+
+                                <p class="text-xs text-[#800020]/50 mt-1">
+                                    Transaction #{{ expense["id"] }}
+                                </p>
+
+                            </td>
+
+
+                            <!-- Category -->
+                            <td class="px-5 py-4">
+
+                                <span class="inline-block px-3 py-1
+                                             rounded-full bg-[#F3E6D5]
+                                             text-[#800020] text-xs font-medium">
+                                    {{ expense["category"] }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- Amount -->
+                            <td class="px-5 py-4 text-sm font-bold text-[#800020]">
+                                ₹{{ "%.2f"|format(expense["amount"]) }}
+                            </td>
+
+
+                            <!-- Actions -->
+                            <td class="px-5 py-4">
+
+                                <div class="flex items-center justify-center gap-2">
+
+                                    <!-- Edit -->
+                                    <a
+                                        href="{{ url_for('edit', expense_id=expense['id']) }}"
+                                        class="px-3 py-2 rounded-lg bg-[#F3E6D5]
+                                               text-[#800020] text-xs font-semibold
+                                               hover:bg-[#E8D8C5] transition">
+
+                                        Edit
+
+                                    </a>
+
+
+                                    <!-- Delete -->
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('delete', expense_id=expense['id']) }}"
+                                        onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+
+                                        <input type="hidden"
+                                               name="return_to"
+                                               value="transactions">
+
+                                        <button
+                                            type="submit"
+                                            class="px-3 py-2 rounded-lg bg-rose-50
+                                                   text-rose-700 text-xs font-semibold
+                                                   hover:bg-rose-100 transition">
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <!-- Empty State -->
+        <div class="text-center py-16 px-5">
+
+            <div class="w-16 h-16 mx-auto rounded-2xl
+                        bg-[#F3E6D5] flex items-center
+                        justify-center text-3xl mb-5">
+                ↔
+            </div>
+
+            <h3 class="text-lg font-bold text-[#800020]">
+                No Transactions Found
+            </h3>
+
+            <p class="text-sm text-[#800020]/60 mt-2 max-w-sm mx-auto">
+                No expenses match your current search or filters.
+                Try changing your search criteria.
+            </p>
+
+            <a href="{{ url_for('transactions') }}"
+               class="inline-block mt-5 px-5 py-3 rounded-xl
+                      bg-[#800020] text-white text-sm font-semibold
+                      hover:bg-[#B83248] transition">
+
+                View All Transactions
+
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,344 @@
+
+{% extends "base.html" %}
+
+{% block title %}Analytics | ExpenseFlow{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<div class="mb-8">
+    <p class="text-sm font-semibold text-[#D45060] mb-2">
+        FINANCIAL INSIGHTS
+    </p>
+
+    <h1 class="text-2xl md:text-3xl font-bold text-[#800020]">
+        Spending Analytics
+    </h1>
+
+    <p class="text-sm text-[#800020]/60 mt-2">
+        Understand your spending patterns and make smarter financial decisions.
+    </p>
+</div>
+
+
+<!-- Total Spending Card -->
+<div class="bg-white border border-[#E8D8C5] rounded-2xl p-6 shadow-sm mb-8">
+
+    <div class="flex items-center justify-between">
+
+        <div>
+            <p class="text-sm text-[#800020]/60 font-medium">
+                Total Spending
+            </p>
+
+            <h2 class="text-3xl font-bold text-[#800020] mt-3">
+                ₹{{ "%.2f"|format(total) }}
+            </h2>
+
+            <p class="text-xs text-[#800020]/50 mt-2">
+                Based on selected filters
+            </p>
+        </div>
+
+        <div class="w-14 h-14 rounded-xl bg-[#F3E6D5]
+                    flex items-center justify-center text-2xl">
+            ₹
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Filters -->
+<div class="bg-white border border-[#E8D8C5]
+            rounded-2xl p-5 md:p-6 shadow-sm mb-8">
+
+    <h2 class="text-lg font-bold text-[#800020] mb-1">
+        Analytics Filters
+    </h2>
+
+    <p class="text-sm text-[#800020]/60 mb-5">
+        Select a date range or category to explore your spending.
+    </p>
+
+    <form method="GET" action="{{ url_for('analytics') }}">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <div>
+                <label for="start"
+                       class="block text-sm font-semibold text-[#800020] mb-2">
+                    From Date
+                </label>
+
+                <input type="date"
+                       id="start"
+                       name="start"
+                       value="{{ start }}"
+                       class="w-full border border-[#E8D8C5] rounded-xl px-4 py-3 text-sm bg-[#FFF9F2]">
+            </div>
+
+            <div>
+                <label for="end"
+                       class="block text-sm font-semibold text-[#800020] mb-2">
+                    To Date
+                </label>
+
+                <input type="date"
+                       id="end"
+                       name="end"
+                       value="{{ end }}"
+                       class="w-full border border-[#E8D8C5] rounded-xl px-4 py-3 text-sm bg-[#FFF9F2]">
+            </div>
+
+            <div>
+                <label for="category"
+                       class="block text-sm font-semibold text-[#800020] mb-2">
+                    Category
+                </label>
+
+                <select id="category"
+                        name="category"
+                        class="w-full border border-[#E8D8C5] rounded-xl px-4 py-3 text-sm bg-[#FFF9F2]">
+
+                    <option value="">All Categories</option>
+
+                    {% for category in categories %}
+                        <option value="{{ category }}"
+                            {% if selected_category == category %}selected{% endif %}>
+                            {{ category }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-5">
+
+            <button type="submit"
+                    class="px-6 py-3 rounded-xl bg-[#800020]
+                           text-white text-sm font-semibold hover:bg-[#B83248]">
+                Apply Filters
+            </button>
+
+            <a href="{{ url_for('analytics') }}"
+               class="px-6 py-3 rounded-xl bg-[#F3E6D5]
+                      text-[#800020] text-sm font-semibold hover:bg-[#E8D8C5]">
+                Reset Filters
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- Charts -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+
+    <!-- Category Chart -->
+    <div class="bg-white border border-[#E8D8C5]
+                rounded-2xl p-5 md:p-6 shadow-sm">
+
+        <h2 class="text-lg font-bold text-[#800020]">
+            Spending by Category
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1 mb-6">
+            See how your expenses are distributed.
+        </p>
+
+        {% if catlabels %}
+
+            <div class="relative w-full max-w-md mx-auto h-72">
+                <canvas id="categoryChart"></canvas>
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-16">
+                <p class="text-3xl mb-3">◷</p>
+
+                <p class="font-semibold text-[#800020]">
+                    No Category Data
+                </p>
+
+                <p class="text-sm text-[#800020]/60 mt-2">
+                    Add expenses to see your category breakdown.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Daily Chart -->
+    <div class="bg-white border border-[#E8D8C5]
+                rounded-2xl p-5 md:p-6 shadow-sm">
+
+        <h2 class="text-lg font-bold text-[#800020]">
+            Daily Spending Trends
+        </h2>
+
+        <p class="text-sm text-[#800020]/60 mt-1 mb-6">
+            Track how much you spend each day.
+        </p>
+
+        {% if daylabels %}
+
+            <div class="relative w-full h-72">
+                <canvas id="dailyChart"></canvas>
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-16">
+                <p class="text-3xl mb-3">▥</p>
+
+                <p class="font-semibold text-[#800020]">
+                    No Daily Data
+                </p>
+
+                <p class="text-sm text-[#800020]/60 mt-2">
+                    Your daily spending chart will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- Closing Information -->
+<div class="bg-[#F3E6D5] border border-[#E8D8C5]
+            rounded-2xl p-5">
+
+    <h3 class="font-bold text-[#800020]">
+        Make Every Expense Count
+    </h3>
+
+    <p class="text-sm text-[#800020]/70 mt-2 leading-relaxed">
+        Review your spending regularly, identify where your money goes,
+        and use these insights to make more informed financial decisions.
+    </p>
+
+</div>
+
+{% endblock %}
+
+
+{% block body_end %}
+
+<script>
+
+    // Category chart data from Flask
+    const categoryLabels = {{ catlabels | tojson }};
+    const categoryValues = {{ catvalues | tojson }};
+
+    // Daily chart data from Flask
+    const dailyLabels = {{ daylabels | tojson }};
+    const dailyValues = {{ dayvalues | tojson }};
+
+
+    // Category Doughnut Chart
+    const categoryCanvas = document.getElementById("categoryChart");
+
+    if (categoryCanvas) {
+
+        new Chart(categoryCanvas, {
+            type: "doughnut",
+
+            data: {
+                labels: categoryLabels,
+
+                datasets: [{
+                    data: categoryValues,
+
+                    backgroundColor: [
+                        "#800020",
+                        "#D45060",
+                        "#E77A85",
+                        "#F3E6D5",
+                        "#B83248",
+                        "#C98A8F"
+                    ],
+
+                    borderWidth: 2,
+                    borderColor: "#FFFFFF",
+                    hoverOffset: 8
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                },
+
+                cutout: "65%"
+            }
+        });
+
+    }
+
+
+    // Daily Spending Bar Chart
+    const dailyCanvas = document.getElementById("dailyChart");
+
+    if (dailyCanvas) {
+
+        new Chart(dailyCanvas, {
+            type: "bar",
+
+            data: {
+                labels: dailyLabels,
+
+                datasets: [{
+                    label: "Daily Spending (₹)",
+                    data: dailyValues,
+
+                    backgroundColor: "#D45060",
+                    borderColor: "#800020",
+                    borderWidth: 1,
+                    borderRadius: 7
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+    }
+
+</script>
+
+{% endblock %}

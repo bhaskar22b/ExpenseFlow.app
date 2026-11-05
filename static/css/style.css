@@ -1,0 +1,178 @@
+
+/* ========================================
+   ExpenseFlow - Global Styles
+   Colour Palette:
+   Burgundy: #800020
+   Beige:    #F3E6D5
+   Ivory:    #FFF9F2
+   Coral:    #D45060
+======================================== */
+
+/* ---------- Global Reset ---------- */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Inter", "Segoe UI", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Text Selection ---------- */
+
+::selection {
+    background-color: #D45060;
+    color: #FFF9F2;
+}
+
+/* ---------- Scrollbar ---------- */
+
+::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F3E6D5;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #B98589;
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #800020;
+}
+
+/* ---------- Links ---------- */
+
+a {
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* ---------- Buttons ---------- */
+
+button {
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ---------- Form Controls ---------- */
+
+input,
+select,
+textarea {
+    font-family: inherit;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #D45060;
+    box-shadow: 0 0 0 3px rgba(212, 80, 96, 0.12);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #B99C9A;
+}
+
+/* ---------- Keyboard Accessibility ---------- */
+
+:focus-visible {
+    outline: 3px solid rgba(212, 80, 96, 0.65);
+    outline-offset: 3px;
+}
+
+/* ---------- Cards ---------- */
+
+.card-hover {
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(59, 24, 32, 0.08);
+}
+
+/* ---------- Tables ---------- */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+    background-color: #FFF9F2;
+}
+
+/* ---------- Charts ---------- */
+
+canvas {
+    max-width: 100%;
+}
+
+/* ---------- Flash Messages ---------- */
+
+.flash-message {
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* ---------- Responsive Improvements ---------- */
+
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+        max-width: 100%;
+    }
+}
+
+/* ---------- Reduced Motion Accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
