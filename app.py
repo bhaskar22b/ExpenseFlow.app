@@ -28,7 +28,8 @@ from datetime import date
 app = Flask(__name__)
 app.secret_key = "expense-tracker-secret-key"
 
-
+# Initialize database when the application loads
+init_db()
 
 # Convert and validate date strings
 def parse_date(date_string):

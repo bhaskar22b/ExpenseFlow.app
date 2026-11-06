@@ -1,11 +1,15 @@
-
 import sqlite3
 import os
 
-DATABASE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "expenses.db"
-)
+IS_VERCEL = os.environ.get("VERCEL") == "1"
+
+if IS_VERCEL:
+    DATABASE = "/tmp/expenses.db"
+else:
+    DATABASE = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "expenses.db"
+    )
 
 
 # Database connection
